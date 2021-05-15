@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'globals.dart' as globals;
 
 void main() {
   runApp(SpotifyApp());
