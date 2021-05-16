@@ -17,10 +17,24 @@ dependencies:
 dev_dependencies:
   http: 0.13.3
 
-  spotify_sdk: 2.1.0
+  flutter_web_auth: 0.3.0
+
+  flutter_dotenv: 3.1.0
+
+  fluttertoast: 8.0.6
 
   flutter_test:
     sdk: flutter
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/spotify_icon.png
+
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: fonts/Nunito-Bold.ttf
+        - asset: fonts/Nunito-Regular.ttf
+        - asset: fonts/Nunito-Light.ttf
