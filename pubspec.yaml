@@ -25,6 +25,8 @@ dev_dependencies:
 
   flutter_swiper: 1.1.6
 
+  spotify_sdk: 2.1.0
+
   flutter_test:
     sdk: flutter
 
