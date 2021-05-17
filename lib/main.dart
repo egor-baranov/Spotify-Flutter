@@ -24,7 +24,7 @@ class SpotifyApp extends StatelessWidget {
         primarySwatch: globals.spotifyGreenColor,
       ),
       home: AuthorizationPage(title: 'Spotify Flutter Custom Client'),
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false
     );
   }
 }
