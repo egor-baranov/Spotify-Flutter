@@ -46,7 +46,8 @@ class AuthorizationPageState extends State<AuthorizationPage> {
                           borderRadius: new BorderRadius.circular(28),
                         )),
                     onPressed: () {
-                      getAuthenticationToken();
+                      // getAuthenticationToken();
+                      connectToSpotifyRemote();
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => PlayerPage()),
@@ -104,5 +105,10 @@ class AuthorizationPageState extends State<AuthorizationPage> {
       print('not implemented');
       return Future.error('not implemented');
     }
+  }
+
+  Future<void> connectToSpotifyRemote() async {
+    var result = await SpotifySdk.connectToSpotifyRemote(
+        clientId: globals.client_id, redirectUrl: globals.redirect_uri);
   }
 }
