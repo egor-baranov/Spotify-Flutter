@@ -42,12 +42,11 @@ class AuthorizationPageState extends State<AuthorizationPage> {
                     style: ElevatedButton.styleFrom(
                         elevation: 8,
                         shadowColor: globals.spotifyGreenColor,
-                        shape: new RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(28),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(28),
                         )),
                     onPressed: () {
-                      // getAuthenticationToken();
-                      connectToSpotifyRemote();
+                      getAuthenticationToken();
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => PlayerPage()),
@@ -74,20 +73,6 @@ class AuthorizationPageState extends State<AuthorizationPage> {
     );
   }
 
-  // void getAuthenticationToken() async {
-  //   final result = await FlutterWebAuth.authenticate(
-  //     url: "https://accounts.spotify.com/authorize?" +
-  //         "client_id=${globals.client_id}&" +
-  //         "redirect_uri=${globals.redirect_uri}&" +
-  //         "scope=user-read-currently-playing&" +
-  //         "response_type=token&" +
-  //         "state=123",
-  //     callbackUrlScheme: "spotifyflutter",
-  //   );
-  //
-  //   var accessToken = Uri.parse(result).queryParameters['token'];
-  //   print("Access token is $accessToken");
-  // }
   Future<String> getAuthenticationToken() async {
     try {
       var authenticationToken = await SpotifySdk.getAuthenticationToken(
@@ -98,6 +83,8 @@ class AuthorizationPageState extends State<AuthorizationPage> {
               'playlist-read-private, '
               'playlist-modify-public,user-read-currently-playing');
       print('Got a token: $authenticationToken');
+      globals.token = authenticationToken;
+      connectToSpotifyRemote();
       return authenticationToken;
     } on PlatformException catch (e) {
       return Future.error('$e.code: $e.message');
@@ -110,5 +97,6 @@ class AuthorizationPageState extends State<AuthorizationPage> {
   Future<void> connectToSpotifyRemote() async {
     var result = await SpotifySdk.connectToSpotifyRemote(
         clientId: globals.client_id, redirectUrl: globals.redirect_uri);
+    print(result.toString());
   }
 }
