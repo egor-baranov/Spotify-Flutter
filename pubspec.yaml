@@ -27,6 +27,8 @@ dev_dependencies:
 
   spotify_sdk: 2.1.0
 
+  superellipse_shape: 0.1.6
+
   flutter_test:
     sdk: flutter
 
