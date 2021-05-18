@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import "dart:math";
 import 'package:spotify_flutter/globals.dart' as globals;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:spotify_flutter/widgets/spotify_image_widget.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:spotify_sdk/models/connection_status.dart';
+import 'package:http/http.dart' as http;
+import 'package:superellipse_shape/superellipse_shape.dart';
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -16,6 +21,13 @@ class _PlayerPageState extends State<PlayerPage> {
   var isPlaying = false;
   var isLoading = false;
   var likedTracks = [];
+  var colorList = [
+    Colors.pinkAccent,
+    Colors.purpleAccent,
+    Colors.redAccent,
+    Colors.greenAccent,
+    Colors.blueAccent
+  ];
 
   @override
   initState() {
@@ -23,6 +35,7 @@ class _PlayerPageState extends State<PlayerPage> {
       likedTracks.add(false);
     }
     play('spotify:track:3KLHSYHSmny4sJo2finqy9');
+    fetchRecentlyPlayedTracks();
     super.initState();
   }
 
@@ -53,8 +66,8 @@ class _PlayerPageState extends State<PlayerPage> {
                 return Padding(
                   padding: EdgeInsets.only(bottom: 30),
                   child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                    shape: SuperellipseShape(
+                      borderRadius: BorderRadius.circular(32),
                     ),
                     elevation: 4,
                     child: Container(
@@ -71,8 +84,29 @@ class _PlayerPageState extends State<PlayerPage> {
                                   fontFamily: 'Nunito'),
                             ),
                             Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Material(
+                                clipBehavior: Clip.antiAlias,
+                                shape: SuperellipseShape(
+                                  borderRadius: BorderRadius.circular(64),
+                                ),
+                                child: Container(
+                                  width: 224,
+                                  height: 224,
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                          begin: Alignment.bottomRight,
+                                          end: Alignment.topLeft,
+                                          colors: [
+                                        colorList[0],
+                                        colorList[1]
+                                      ])),
+                                ),
+                              ),
+                            ),
+                            Padding(
                               padding: const EdgeInsets.only(
-                                  top: 256, right: 16, bottom: 16, left: 216),
+                                  top: 0, right: 16, bottom: 16, left: 216),
                               child: RawMaterialButton(
                                 elevation: 0,
                                 onPressed: () {
@@ -236,5 +270,15 @@ class _PlayerPageState extends State<PlayerPage> {
         isLoading = false;
       });
     }
+  }
+
+  Future<void> fetchRecentlyPlayedTracks() async {
+    var response = await http.get(
+      Uri.https('api.spotify.com', 'v1/me/player/recently-played'),
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer ${globals.token}',
+      },
+    );
+    print(response.body);
   }
 }
