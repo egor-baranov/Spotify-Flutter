@@ -29,6 +29,8 @@ dev_dependencies:
 
   superellipse_shape: 0.1.6
 
+  path_provider: 2.0.1
+
   flutter_test:
     sdk: flutter
 
