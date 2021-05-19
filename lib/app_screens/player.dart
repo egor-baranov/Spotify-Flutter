@@ -1,16 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import "dart:math";
 import 'package:spotify_flutter/globals.dart' as globals;
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:spotify_flutter/widgets/spotify_image_widget.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:spotify_sdk/models/connection_status.dart';
-import 'package:http/http.dart' as http;
 import 'package:superellipse_shape/superellipse_shape.dart';
+import 'package:spotify_flutter/util/spotify_connection_worker.dart';
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -21,6 +16,9 @@ class _PlayerPageState extends State<PlayerPage> {
   var isPlaying = false;
   var isLoading = false;
   var likedTracks = [];
+
+  var duration = 0;
+
   var colorList = [
     Colors.pinkAccent,
     Colors.purpleAccent,
@@ -35,7 +33,7 @@ class _PlayerPageState extends State<PlayerPage> {
       likedTracks.add(false);
     }
     play('spotify:track:3KLHSYHSmny4sJo2finqy9');
-    fetchRecentlyPlayedTracks();
+    setTrackData();
     super.initState();
   }
 
@@ -161,7 +159,8 @@ class _PlayerPageState extends State<PlayerPage> {
                   ),
                 ),
                 Text(
-                  "3:14",
+                  "${Duration(milliseconds: duration).inMinutes}:" +
+                      "${Duration(milliseconds: duration).inSeconds}",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: globals.spotifyBlackColor,
@@ -226,9 +225,22 @@ class _PlayerPageState extends State<PlayerPage> {
     );
   }
 
+  Future<void> setTrackData() async {
+    var trackData = await SpotifyConnectionWorker.getCurrentlyPLayingTrack();
+    print("currently playing track is $trackData");
+    setState(() {
+      duration = trackData.duration;
+    });
+  }
+
   Future<void> play(String spotifyUri) async {
-    await SpotifySdk.play(spotifyUri: spotifyUri);
-    await SpotifySdk.pause();
+    try {
+      await SpotifySdk.play(spotifyUri: spotifyUri);
+    } on PlatformException catch (e) {
+      print(e.message);
+    } on MissingPluginException {
+      print('not implemented');
+    }
   }
 
   Future<void> resume() async {
@@ -237,11 +249,6 @@ class _PlayerPageState extends State<PlayerPage> {
 
   Future<void> pause() async {
     await SpotifySdk.pause();
-  }
-
-  Future<void> connectToSpotifyRemote() async {
-    var result = await SpotifySdk.connectToSpotifyRemote(
-        clientId: globals.client_id, redirectUrl: globals.redirect_uri);
   }
 
   Future<void> skipNext() async {
@@ -270,15 +277,5 @@ class _PlayerPageState extends State<PlayerPage> {
         isLoading = false;
       });
     }
-  }
-
-  Future<void> fetchRecentlyPlayedTracks() async {
-    var response = await http.get(
-      Uri.https('api.spotify.com', 'v1/me/player/recently-played'),
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer ${globals.token}',
-      },
-    );
-    print(response.body);
   }
 }
