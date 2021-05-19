@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:spotify_flutter/app_screens/player.dart';
 import 'package:spotify_flutter/globals.dart' as globals;
-import 'package:flutter_web_auth/flutter_web_auth.dart';
-import 'package:spotify_sdk/spotify_sdk.dart';
+import 'package:spotify_flutter/util/spotify_connection_worker.dart';
 
 class AuthorizationPage extends StatefulWidget {
   AuthorizationPage({Key key, this.title}) : super(key: key);
@@ -46,7 +45,7 @@ class AuthorizationPageState extends State<AuthorizationPage> {
                           borderRadius: BorderRadius.circular(28),
                         )),
                     onPressed: () {
-                      getAuthenticationToken();
+                      SpotifyConnectionWorker.performAuthorizedConnection();
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => PlayerPage()),
@@ -71,32 +70,5 @@ class AuthorizationPageState extends State<AuthorizationPage> {
         ),
       ),
     );
-  }
-
-  Future<String> getAuthenticationToken() async {
-    try {
-      var authenticationToken = await SpotifySdk.getAuthenticationToken(
-          clientId: globals.client_id.toString(),
-          redirectUrl: globals.redirect_uri.toString(),
-          scope: 'app-remote-control, '
-              'user-modify-playback-state, '
-              'playlist-read-private, '
-              'playlist-modify-public,user-read-currently-playing');
-      print('Got a token: $authenticationToken');
-      globals.token = authenticationToken;
-      connectToSpotifyRemote();
-      return authenticationToken;
-    } on PlatformException catch (e) {
-      return Future.error('$e.code: $e.message');
-    } on MissingPluginException {
-      print('not implemented');
-      return Future.error('not implemented');
-    }
-  }
-
-  Future<void> connectToSpotifyRemote() async {
-    var result = await SpotifySdk.connectToSpotifyRemote(
-        clientId: globals.client_id, redirectUrl: globals.redirect_uri);
-    print(result.toString());
   }
 }
