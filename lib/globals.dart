@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 const client_id = "9d2635f02f6f4975bfb722d594cbaa27";
 const redirect_uri = "spotifyflutter:/";
 const sha1 = "FC:D9:89:0C:FE:AE:77:49:44:F4:5A:57:EC:35:F7:86:5E:F5:76:6B";
-var token =
-    "BQC2rY-oJSiaUKHg7k4QyRCxw260BBPKTgPvwG2Nu31X3AGpi7hlwitc-IbOiiyQ5tpMeLb_ancJg4I2TrU38-03C3y_RJeDgr_6Dyg9Yyxl0u3VXV8uQmhJPLQupI6nGJ7nsprEQ6SrieNcT-mJ8tyJKSCMW1OFg8Isc98Daz1qV4tLVePmlWJzlL49tnqWgiAAammwv9FdntOLp4e0H_Dp";
 
 Map<int, Color> _spotifyGreenColorMap = {
   50: Color.fromRGBO(30, 215, 96, .1),
