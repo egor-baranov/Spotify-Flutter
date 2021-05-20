@@ -60,7 +60,7 @@ class SpotifyConnectionWorker {
     print(response.body);
   }
 
-  static Future<Track> getCurrentlyPLayingTrack() async {
+  static Future<Track> getCurrentlyPlayingTrack() async {
     var response = await http.get(
       Uri.https(
         'api.spotify.com',
@@ -75,6 +75,8 @@ class SpotifyConnectionWorker {
       },
     );
 
+    print("result is ${response.body}");
+
     var map = json.decode(response.body) as Map<String, dynamic>;
     return Track(TrackBuilder()
       ..setArtistName(map['item']['album']['artists'][0]['name'])
@@ -85,5 +87,26 @@ class SpotifyConnectionWorker {
       ..setTrackName(map['item']['name'])
       ..setIsPlaying(map['is_playing'])
       ..setLink(map['item']['external_urls']['spotify']));
+  }
+
+  static Future<List<Track>> getSavedTracks() async {
+    var response = await http.post(
+      Uri.https(
+        'api.spotify.com',
+        'v1/me/tracks',
+        {'market': 'ES'},
+      ),
+      headers: {
+        HttpHeaders.authorizationHeader:
+            'Bearer ${await LocalStorageWorker.getToken()}',
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.acceptHeader: 'application/json'
+      },
+    );
+
+    var map = json.decode(response.body) as Map<String, dynamic>;
+    return [
+      Track(TrackBuilder())
+    ];
   }
 }

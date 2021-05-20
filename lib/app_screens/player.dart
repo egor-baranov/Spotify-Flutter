@@ -46,6 +46,9 @@ class _PlayerPageState extends State<PlayerPage> {
     setTrackData();
     play('spotify:track:3KLHSYHSmny4sJo2finqy9');
     Timer.periodic(const Duration(seconds: 1), (Timer t) => setTrackData());
+
+    SpotifyConnectionWorker.getSavedTracks();
+
     super.initState();
   }
 
@@ -90,7 +93,7 @@ class _PlayerPageState extends State<PlayerPage> {
                     semanticContainer: true,
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     shape: SuperellipseShape(
-                      borderRadius: BorderRadius.circular(64),
+                      borderRadius: BorderRadius.circular(48),
                     ),
                     elevation: 8,
                     child: Container(
@@ -272,7 +275,7 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   Future<void> setTrackData() async {
-    var trackData = await SpotifyConnectionWorker.getCurrentlyPLayingTrack();
+    var trackData = await SpotifyConnectionWorker.getCurrentlyPlayingTrack();
     setState(() {
       progress = trackData.progress;
       duration = trackData.duration;
