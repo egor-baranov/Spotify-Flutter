@@ -9,6 +9,7 @@ import 'package:spotify_sdk/models/connection_status.dart';
 import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:spotify_flutter/util/spotify_connection_worker.dart';
 import 'package:spotify_sdk/models/player_state.dart';
+import 'package:share/share.dart';
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -21,6 +22,8 @@ class _PlayerPageState extends State<PlayerPage> {
   var isPlaying = false;
   var isLoading = false;
   var likedTracks = [];
+  var trackLink = "...";
+  var authorName = "...";
 
   var progress = 0;
   var duration = 0;
@@ -52,18 +55,20 @@ class _PlayerPageState extends State<PlayerPage> {
         return Scaffold(
             body: Column(
           children: [
-            Divider(height: 100, color: Colors.transparent),
+            Divider(height: 128, color: Colors.transparent),
+            Padding(
+                padding: EdgeInsets.only(left: 16, right: 16),
+                child: Text(
+                  trackName,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: globals.spotifyBlackColor,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Nunito'),
+                )),
             Text(
-              trackName,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: globals.spotifyBlackColor,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Nunito'),
-            ),
-            Text(
-              "author name",
+              authorName,
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: Colors.grey,
@@ -71,7 +76,7 @@ class _PlayerPageState extends State<PlayerPage> {
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Nunito'),
             ),
-            Divider(height: 60, color: Colors.transparent),
+            Divider(height: 20, color: Colors.transparent),
             Swiper(
               itemCount: 10,
               itemWidth: 300,
@@ -92,32 +97,52 @@ class _PlayerPageState extends State<PlayerPage> {
                             fit: BoxFit.fill,
                             image: NetworkImage(trackImageUrl)),
                       ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 100, right: 16, bottom: 16, left: 216),
-                              child: RawMaterialButton(
-                                elevation: 0,
-                                onPressed: () {
-                                  setState(() {
-                                    likedTracks[index] = !likedTracks[index];
-                                  });
-                                },
-                                fillColor: globals.spotifyGreenColor,
-                                shape: CircleBorder(),
-                                child: Icon(
-                                  likedTracks[index]
-                                      ? Icons.favorite
-                                      : Icons.favorite_outline,
-                                  color: Colors.white,
-                                  size: 32,
-                                ),
-                                padding: EdgeInsets.all(12),
-                              ),
-                            )
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 120, bottom: 16),
+                        child: IntrinsicWidth(
+                          child: Row(children: [
+                            Align(
+                                alignment: Alignment.bottomLeft,
+                                child: RawMaterialButton(
+                                  elevation: 0,
+                                  onPressed: () {
+                                    setState(() {
+                                      Share.share(trackLink);
+                                    });
+                                  },
+                                  fillColor: globals.spotifyGreenColor,
+                                  shape: CircleBorder(),
+                                  child: Icon(
+                                    Icons.share,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                  padding: EdgeInsets.all(12),
+                                )),
+                            Container(
+                                padding: EdgeInsets.only(left: 116),
+                                alignment: Alignment.bottomRight,
+                                child: RawMaterialButton(
+                                  elevation: 0,
+                                  onPressed: () {
+                                    setState(() {
+                                      likedTracks[index] = !likedTracks[index];
+                                    });
+                                  },
+                                  fillColor: globals.spotifyGreenColor,
+                                  shape: CircleBorder(),
+                                  child: Icon(
+                                    likedTracks[index]
+                                        ? Icons.favorite
+                                        : Icons.favorite_outline,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                  padding: EdgeInsets.all(12),
+                                ))
                           ]),
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -126,7 +151,6 @@ class _PlayerPageState extends State<PlayerPage> {
               viewportFraction: 2,
               scale: 1,
             ),
-            Divider(height: 40, color: Colors.transparent),
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16),
               child: Slider(
@@ -229,13 +253,14 @@ class _PlayerPageState extends State<PlayerPage> {
 
   Future<void> setTrackData() async {
     var trackData = await SpotifyConnectionWorker.getCurrentlyPLayingTrack();
-    print("currently playing track is ${trackData.toString()}");
     setState(() {
       progress = trackData.progress;
       duration = trackData.duration;
       isPlaying = trackData.isPlaying;
       trackName = trackData.trackName;
       trackImageUrl = trackData.imageUrl;
+      trackLink = trackData.link;
+      authorName = trackData.artistName;
     });
   }
 
