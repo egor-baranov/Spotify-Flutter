@@ -84,6 +84,6 @@ class SpotifyConnectionWorker {
       ..setProgress(map['progress_ms'])
       ..setTrackName(map['item']['name'])
       ..setIsPlaying(map['is_playing'])
-    );
+      ..setLink(map['item']['external_urls']['spotify']));
   }
 }
