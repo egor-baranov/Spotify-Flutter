@@ -31,6 +31,10 @@ dev_dependencies:
 
   path_provider: 2.0.1
 
+  share: 2.0.1
+
+  google_fonts: 2.1.0
+
   flutter_test:
     sdk: flutter
 
