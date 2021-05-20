@@ -29,7 +29,7 @@ class SpotifyConnectionWorker {
             'playlist-read-private, '
             'playlist-modify-public,user-read-currently-playing',
       );
-      print('Got a token: $authenticationToken');
+      LocalStorageWorker.updateToken(authenticationToken);
       connectToSpotifyRemote();
       return authenticationToken;
     } on PlatformException catch (e) {
@@ -45,7 +45,6 @@ class SpotifyConnectionWorker {
       clientId: globals.client_id,
       redirectUrl: globals.redirect_uri,
     );
-    print("Result is $result");
   }
 
   static Future<void> fetchRecentlyPlayedTracks() async {
@@ -54,7 +53,7 @@ class SpotifyConnectionWorker {
           {'scope': 'playlist-modify-public,user-read-currently-playing'}),
       headers: {
         HttpHeaders.authorizationHeader:
-        'Bearer ${await LocalStorageWorker.getToken()}',
+            'Bearer ${await LocalStorageWorker.getToken()}',
       },
     );
 
@@ -70,23 +69,21 @@ class SpotifyConnectionWorker {
       ),
       headers: {
         HttpHeaders.authorizationHeader:
-        'Bearer ${await LocalStorageWorker.getToken()}',
+            'Bearer ${await LocalStorageWorker.getToken()}',
         HttpHeaders.contentTypeHeader: 'application/json',
         HttpHeaders.acceptHeader: 'application/json'
       },
     );
 
-    // print(response.body);
-
-    var map = jsonDecode(response.body);
-    return Track(
-        TrackBuilder()
-          ..setArtistName(map['item']['album']['artists'][0]['name'])
-          ..setDuration(map['item']['duration_ms'])
-          ..setId(map['item']['id'])
-          ..setImageUrl(map['item']['album']['images'][0]['url'])
-          ..setProgress(map['progress_ms'])
-          ..setTrackName(map['item']['name'])
+    var map = json.decode(response.body) as Map<String, dynamic>;
+    return Track(TrackBuilder()
+      ..setArtistName(map['item']['album']['artists'][0]['name'])
+      ..setDuration(map['item']['duration_ms'])
+      ..setId(map['item']['id'])
+      ..setImageUrl(map['item']['album']['images'][0]['url'])
+      ..setProgress(map['progress_ms'])
+      ..setTrackName(map['item']['name'])
+      ..setIsPlaying(map['is_playing'])
     );
   }
 }
