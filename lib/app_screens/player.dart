@@ -6,6 +6,7 @@ import 'package:spotify_flutter/globals.dart' as globals;
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:spotify_sdk/models/connection_status.dart';
+import 'package:spotify_sdk/enums/repeat_mode_enum.dart';
 import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:spotify_flutter/util/spotify_connection_worker.dart';
 import 'package:share/share.dart';
@@ -19,6 +20,8 @@ class _PlayerPageState extends State<PlayerPage> {
   var trackName = "Track name is loading..";
   var trackImageUrl = "";
   var isPlaying = false;
+  var isShuffling = false;
+  var repeatMode = RepeatMode.off;
   var isLoading = false;
   var likedTracks = [];
   var trackLink = "...";
@@ -198,7 +201,15 @@ class _PlayerPageState extends State<PlayerPage> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               IconButton(
                 icon: Icon(Icons.shuffle),
-                onPressed: () {},
+                color: isShuffling
+                    ? globals.spotifyGreenColor
+                    : globals.spotifyBlackColor,
+                onPressed: () {
+                  setState(() {
+                    isShuffling = !isShuffling;
+                  });
+                  SpotifySdk.setShuffle(shuffle: isShuffling);
+                },
               ),
               IconButton(
                 icon: Icon(Icons.arrow_back_ios),
@@ -241,7 +252,17 @@ class _PlayerPageState extends State<PlayerPage> {
               ),
               IconButton(
                 icon: Icon(Icons.repeat),
-                onPressed: () {},
+                color: repeatMode == RepeatMode.off
+                    ? globals.spotifyBlackColor
+                    : globals.spotifyGreenColor,
+                onPressed: () {
+                  setState(() {
+                    repeatMode = repeatMode == RepeatMode.off
+                        ? RepeatMode.track
+                        : RepeatMode.off;
+                  });
+                  SpotifySdk.setRepeatMode(repeatMode: repeatMode);
+                },
               ),
             ]),
           ],
