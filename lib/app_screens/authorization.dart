@@ -44,8 +44,8 @@ class AuthorizationPageState extends State<AuthorizationPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(28),
                         )),
-                    onPressed: () {
-                      SpotifyConnectionWorker.performAuthorizedConnection();
+                    onPressed: () async {
+                      await SpotifyConnectionWorker.getAuthenticationToken();
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => PlayerPage()),
