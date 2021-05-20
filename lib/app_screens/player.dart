@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:spotify_flutter/globals.dart' as globals;
@@ -6,6 +8,7 @@ import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:spotify_sdk/models/connection_status.dart';
 import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:spotify_flutter/util/spotify_connection_worker.dart';
+import 'package:spotify_sdk/models/player_state.dart';
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -13,10 +16,13 @@ class PlayerPage extends StatefulWidget {
 }
 
 class _PlayerPageState extends State<PlayerPage> {
+  var trackName = "Track name is loading..";
+  var trackImageUrl = "";
   var isPlaying = false;
   var isLoading = false;
   var likedTracks = [];
 
+  var progress = 0;
   var duration = 0;
 
   var colorList = [
@@ -32,8 +38,9 @@ class _PlayerPageState extends State<PlayerPage> {
     for (var i = 0; i < 10; i++) {
       likedTracks.add(false);
     }
-    play('spotify:track:3KLHSYHSmny4sJo2finqy9');
     setTrackData();
+    play('spotify:track:3KLHSYHSmny4sJo2finqy9');
+    Timer.periodic(const Duration(seconds: 1), (Timer t) => setTrackData());
     super.initState();
   }
 
@@ -45,66 +52,52 @@ class _PlayerPageState extends State<PlayerPage> {
         return Scaffold(
             body: Column(
           children: [
-            Divider(height: 80, color: Colors.transparent),
+            Divider(height: 100, color: Colors.transparent),
             Text(
-              "Some header text.",
+              trackName,
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: globals.spotifyBlackColor,
-                  fontSize: 24,
+                  fontSize: 28,
                   fontWeight: FontWeight.w900,
                   fontFamily: 'Nunito'),
             ),
-            Divider(height: 50, color: Colors.transparent),
+            Text(
+              "author name",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Nunito'),
+            ),
+            Divider(height: 60, color: Colors.transparent),
             Swiper(
               itemCount: 10,
               itemWidth: 300,
-              itemHeight: 450,
+              itemHeight: 350,
               itemBuilder: (BuildContext context, int index) {
                 return Padding(
                   padding: EdgeInsets.only(bottom: 30),
                   child: Card(
+                    semanticContainer: true,
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
                     shape: SuperellipseShape(
-                      borderRadius: BorderRadius.circular(32),
+                      borderRadius: BorderRadius.circular(64),
                     ),
-                    elevation: 4,
+                    elevation: 8,
                     child: Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.fill,
+                            image: NetworkImage(trackImageUrl)),
+                      ),
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text(
-                              "Track №${index + 1}",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: globals.spotifyBlackColor,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Nunito'),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Material(
-                                clipBehavior: Clip.antiAlias,
-                                shape: SuperellipseShape(
-                                  borderRadius: BorderRadius.circular(64),
-                                ),
-                                child: Container(
-                                  width: 224,
-                                  height: 224,
-                                  decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                          begin: Alignment.bottomRight,
-                                          end: Alignment.topLeft,
-                                          colors: [
-                                        colorList[0],
-                                        colorList[1]
-                                      ])),
-                                ),
-                              ),
-                            ),
                             Padding(
                               padding: const EdgeInsets.only(
-                                  top: 0, right: 16, bottom: 16, left: 216),
+                                  top: 100, right: 16, bottom: 16, left: 216),
                               child: RawMaterialButton(
                                 elevation: 0,
                                 onPressed: () {
@@ -131,13 +124,21 @@ class _PlayerPageState extends State<PlayerPage> {
               },
               layout: SwiperLayout.STACK,
               viewportFraction: 2,
-              scale: 0.9,
+              scale: 1,
             ),
+            Divider(height: 40, color: Colors.transparent),
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16),
               child: Slider(
-                value: 0,
+                value: progress / 1000,
+                min: 0,
+                max: duration / 1000,
                 onChanged: (value) {
+                  SpotifySdk.seekTo(
+                      positionedMilliseconds: (value * 1000).toInt());
+                  setState(() {
+                    progress = (value * 1000).toInt();
+                  });
                   print(value);
                 },
                 activeColor: globals.spotifyGreenColor,
@@ -149,7 +150,8 @@ class _PlayerPageState extends State<PlayerPage> {
                 Padding(
                   padding: const EdgeInsets.only(right: 216),
                   child: Text(
-                    "0:00",
+                    "${Duration(milliseconds: progress).inMinutes}:" +
+                        "${(Duration(milliseconds: progress).inSeconds % 60).toString().padLeft(2, '0')}",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: globals.spotifyBlackColor,
@@ -160,7 +162,7 @@ class _PlayerPageState extends State<PlayerPage> {
                 ),
                 Text(
                   "${Duration(milliseconds: duration).inMinutes}:" +
-                      "${Duration(milliseconds: duration).inSeconds}",
+                      "${(Duration(milliseconds: duration).inSeconds % 60).toString().padLeft(2, '0')}",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: globals.spotifyBlackColor,
@@ -227,9 +229,13 @@ class _PlayerPageState extends State<PlayerPage> {
 
   Future<void> setTrackData() async {
     var trackData = await SpotifyConnectionWorker.getCurrentlyPLayingTrack();
-    print("currently playing track is $trackData");
+    print("currently playing track is ${trackData.toString()}");
     setState(() {
+      progress = trackData.progress;
       duration = trackData.duration;
+      isPlaying = trackData.isPlaying;
+      trackName = trackData.trackName;
+      trackImageUrl = trackData.imageUrl;
     });
   }
 
@@ -253,10 +259,12 @@ class _PlayerPageState extends State<PlayerPage> {
 
   Future<void> skipNext() async {
     await SpotifySdk.skipNext();
+    setTrackData();
   }
 
   Future<void> skipPrevious() async {
     await SpotifySdk.skipPrevious();
+    setTrackData();
   }
 
   Future<void> disconnect() async {
