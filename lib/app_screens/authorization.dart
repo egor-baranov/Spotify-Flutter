@@ -46,10 +46,7 @@ class AuthorizationPageState extends State<AuthorizationPage> {
                         )),
                     onPressed: () async {
                       await SpotifyConnectionWorker.getAuthenticationToken();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PlayerPage()),
-                      );
+                      Navigator.of(context).push(_slideRoute());
                     },
                     label: Text(
                       'Sign in with Spotify',
@@ -71,4 +68,22 @@ class AuthorizationPageState extends State<AuthorizationPage> {
       ),
     );
   }
+}
+
+Route _slideRoute() {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => PlayerPage(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      var begin = Offset(0.0, 1.0);
+      var end = Offset.zero;
+      var curve = Curves.ease;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
 }
