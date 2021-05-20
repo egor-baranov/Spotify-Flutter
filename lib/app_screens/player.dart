@@ -8,7 +8,6 @@ import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:spotify_sdk/models/connection_status.dart';
 import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:spotify_flutter/util/spotify_connection_worker.dart';
-import 'package:spotify_sdk/models/player_state.dart';
 import 'package:share/share.dart';
 
 class PlayerPage extends StatefulWidget {

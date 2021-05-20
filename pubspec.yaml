@@ -35,6 +35,8 @@ dev_dependencies:
 
   google_fonts: 2.1.0
 
+  marquee: 2.1.0
+
   flutter_test:
     sdk: flutter
 
