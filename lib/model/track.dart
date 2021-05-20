@@ -8,6 +8,7 @@ class Track {
   int progress;
   String imageUrl;
   bool isPlaying;
+  String link;
 
   Track(TrackBuilder builder) {
     this.id = builder.id;
@@ -17,6 +18,7 @@ class Track {
     this.progress = builder.progress;
     this.imageUrl = builder.imageUrl;
     this.isPlaying = builder.isPlaying;
+    this.link = builder.link;
   }
 }
 
@@ -32,7 +34,7 @@ class TrackBuilder {
   @protected
   int progress;
   @protected
-  String imageUrl;
+  String imageUrl, link;
   @protected
   bool isPlaying;
 
@@ -68,6 +70,11 @@ class TrackBuilder {
 
   TrackBuilder setIsPlaying(bool isPlaying) {
     this.isPlaying = isPlaying;
+    return this;
+  }
+
+  TrackBuilder setLink(String link) {
+    this.link = link;
     return this;
   }
 }
