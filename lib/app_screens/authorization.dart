@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spotify_flutter/app_screens/menu.dart';
 
 import 'package:spotify_flutter/app_screens/player.dart';
 import 'package:spotify_flutter/globals.dart' as globals;
@@ -72,7 +73,7 @@ class AuthorizationPageState extends State<AuthorizationPage> {
 
 Route _slideRoute() {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => PlayerPage(),
+    pageBuilder: (context, animation, secondaryAnimation) => MenuPage(),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       var begin = Offset(0.0, 1.0);
       var end = Offset.zero;
