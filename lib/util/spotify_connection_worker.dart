@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:convert';
 
@@ -16,7 +17,7 @@ class SpotifyConnectionWorker {
     } else {
       LocalStorageWorker.updateToken(await getAuthenticationToken());
     }
-    print(await LocalStorageWorker.getToken());
+    print("token is ${await LocalStorageWorker.getToken()}");
   }
 
   static Future<String> getAuthenticationToken() async {
@@ -25,8 +26,12 @@ class SpotifyConnectionWorker {
         clientId: globals.client_id.toString(),
         redirectUrl: globals.redirect_uri.toString(),
         scope: 'app-remote-control, '
+            'user-library-read, '
+            'user-read-private, '
+            'user-read-recently-played, '
             'user-modify-playback-state, '
             'playlist-read-private, '
+            'user-library-modify, '
             'playlist-modify-public,user-read-currently-playing',
       );
       LocalStorageWorker.updateToken(authenticationToken);
@@ -47,7 +52,7 @@ class SpotifyConnectionWorker {
     );
   }
 
-  static Future<void> fetchRecentlyPlayedTracks() async {
+  static Future<List<Track>> getRecentlyPlayedTracks() async {
     var response = await http.get(
       Uri.https('api.spotify.com', 'v1/me/player/recently-played',
           {'scope': 'playlist-modify-public,user-read-currently-playing'}),
@@ -56,8 +61,8 @@ class SpotifyConnectionWorker {
             'Bearer ${await LocalStorageWorker.getToken()}',
       },
     );
-
-    print(response.body);
+    return [];
+    // log("recently played tracks: ${response.body}");
   }
 
   static Future<Track> getCurrentlyPlayingTrack() async {
@@ -74,8 +79,6 @@ class SpotifyConnectionWorker {
         HttpHeaders.acceptHeader: 'application/json'
       },
     );
-
-    print("result is ${response.body}");
 
     var map = json.decode(response.body) as Map<String, dynamic>;
     return Track(TrackBuilder()
@@ -104,9 +107,6 @@ class SpotifyConnectionWorker {
       },
     );
 
-    var map = json.decode(response.body) as Map<String, dynamic>;
-    return [
-      Track(TrackBuilder())
-    ];
+    return [];
   }
 }
