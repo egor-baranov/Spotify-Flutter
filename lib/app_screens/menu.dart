@@ -19,31 +19,31 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-          body: Padding(
-            child: Column(
-              children: [
-                Padding(
-                  padding:
-                      EdgeInsets.only(right: 32, left: 32, bottom: 32, top: 64),
-                  child: Text("Spotify X",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Nunito',
-                          fontSize: 36,
-                          color: Colors.grey[800])),
-                ),
-                menuButton("Spotify X+", Icons.add_box_outlined, Colors.green[300]),
-                menuButton("Favourite tracks", Icons.favorite_outline, Colors.redAccent[200]),
-                menuButton("Favourite Albums", Icons.album_outlined, Colors.blue[400]),
-                menuButton("Preferences", Icons.settings, Colors.purple[300]),
-                menuButton("About app", Icons.account_circle_rounded, Colors.amber[400]),
-              ],
-            ),
-            padding: EdgeInsets.all(4),
-          )),
-    );
+    return Scaffold(
+        body: Padding(
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: 32, left: 32, bottom: 32, top: 96),
+            child: Text("Spotify X",
+                style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Nunito',
+                    fontSize: 36,
+                    color: Colors.grey[800])),
+          ),
+          menuButton("Spotify X+", Icons.add_box_outlined, Colors.green[300]),
+          menuButton("Favourite tracks", Icons.favorite_outline,
+              Colors.redAccent[200]),
+          menuButton(
+              "Favourite Albums", Icons.album_outlined, Colors.amber[400]),
+          menuButton("Preferences", Icons.settings, Colors.purple[300]),
+          menuButton(
+              "About app", Icons.account_circle_rounded, Colors.blue[400]),
+        ],
+      ),
+      padding: EdgeInsets.all(4),
+    ));
   }
 
   Widget menuButton(String text, IconData iconData, Color iconColor) => Padding(
@@ -58,13 +58,20 @@ class _MenuPageState extends State<MenuPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 )),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(_slideRoute(Scaffold(
+                  body: SafeArea(
+                      child: Center(
+                          child: Text(text,
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700)))))));
+            },
             child: Row(
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: Icon(iconData,
-                      size: 28, color: iconColor),
+                  child: Icon(iconData, size: 28, color: iconColor),
                 ),
                 Text(text,
                     style: TextStyle(
@@ -83,4 +90,23 @@ class _MenuPageState extends State<MenuPage> {
           ),
         ),
       );
+
+  Route _slideRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(1.0, 0.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
 }
