@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:spotify_flutter/app_screens/menu.dart';
 
 import 'package:spotify_flutter/app_screens/player.dart';
 import 'package:spotify_flutter/globals.dart' as globals;
@@ -47,7 +46,7 @@ class AuthorizationPageState extends State<AuthorizationPage> {
                         )),
                     onPressed: () async {
                       await SpotifyConnectionWorker.getAuthenticationToken();
-                      Navigator.of(context).push(_slideRoute());
+                      Navigator.of(context).push(_slideRoute(PlayerPage()));
                     },
                     label: Text(
                       'Sign in with Spotify',
@@ -71,9 +70,9 @@ class AuthorizationPageState extends State<AuthorizationPage> {
   }
 }
 
-Route _slideRoute() {
+Route _slideRoute(Widget page) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => MenuPage(),
+    pageBuilder: (context, animation, secondaryAnimation) => page,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       var begin = Offset(0.0, 1.0);
       var end = Offset.zero;
