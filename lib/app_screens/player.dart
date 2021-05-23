@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:spotify_flutter/app_screens/menu.dart';
 import 'package:spotify_flutter/globals.dart' as globals;
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:spotify_flutter/model/track.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:spotify_sdk/models/connection_status.dart';
 import 'package:spotify_sdk/enums/repeat_mode_enum.dart';
@@ -48,6 +50,7 @@ class _PlayerPageState extends State<PlayerPage> {
     Timer.periodic(const Duration(seconds: 1), (Timer t) => setTrackData());
 
     SpotifyConnectionWorker.getSavedTracks();
+    SpotifyConnectionWorker.getRecentlyPlayedTracks();
 
     super.initState();
   }
@@ -60,7 +63,21 @@ class _PlayerPageState extends State<PlayerPage> {
         return Scaffold(
             body: Column(
           children: [
-            Divider(height: 128, color: Colors.transparent),
+            Divider(height: 36, color: Colors.transparent),
+            Row(children: [
+              Spacer(),
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(_slideRoute(MenuPage()));
+                    },
+                    icon: Icon(Icons.more_vert,
+                        size: 28, color: globals.spotifyBlackColor)),
+              )
+            ]),
+            Divider(height: 48, color: Colors.transparent),
             Padding(
                 padding: EdgeInsets.only(left: 16, right: 16),
                 child: Text(
@@ -85,7 +102,7 @@ class _PlayerPageState extends State<PlayerPage> {
             Swiper(
               itemCount: 10,
               itemWidth: 300,
-              itemHeight: 350,
+              itemHeight: 328,
               itemBuilder: (BuildContext context, int index) {
                 return Padding(
                   padding: EdgeInsets.only(bottom: 30),
@@ -275,7 +292,12 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   Future<void> setTrackData() async {
-    var trackData = await SpotifyConnectionWorker.getCurrentlyPlayingTrack();
+    var trackData = Track(TrackBuilder());
+    try {
+      trackData = await SpotifyConnectionWorker.getCurrentlyPlayingTrack();
+    } catch (e) {
+      return;
+    }
     setState(() {
       progress = trackData.progress;
       duration = trackData.duration;
@@ -333,5 +355,24 @@ class _PlayerPageState extends State<PlayerPage> {
         isLoading = false;
       });
     }
+  }
+
+  Route _slideRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(1.0, 0.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
   }
 }
